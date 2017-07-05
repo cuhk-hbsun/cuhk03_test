@@ -72,8 +72,9 @@ def _normalize(train_or_val_or_test, use_camera_a=True):
     data_mean_tensor = torch.from_numpy(data_mean)
     data_std_tensor = torch.from_numpy(data_std)
 
-    m = nn.UpsamplingBilinear2d(size=(224,224))
-    data_tensor_resize = m(data_tensor)
+    # m = nn.UpsamplingBilinear2d(size=(224,224))
+    # data_tensor_resize = m(data_tensor)
+    data_tensor_resize = data_tensor
 
     data_tensor_nor = data_tensor_resize
     for i in range(num_sample):
