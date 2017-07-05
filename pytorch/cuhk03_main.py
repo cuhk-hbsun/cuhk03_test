@@ -41,9 +41,9 @@ if args.cuda:
 
 def _get_train_data(train='train'):
     with h5py.File('cuhk-03.h5','r') as ff:
-        a = np.array([ff['a'][train][str(i)][0] for i in range(1000)])
-        b = np.array([ff['b'][train][str(i)][0] for i in range(1000)])
-        c = np.array([ff['a'][train].keys()[i] for i in range(1000)], dtype=np.int32)
+        a = np.array([ff['a'][train][str(i)][0] for i in range(1163)])
+        b = np.array([ff['b'][train][str(i)][0] for i in range(1163)])
+        c = np.array([ff['a'][train].keys()[i] for i in range(1163)], dtype=np.int32)
         return a,b,c
 
 def _get_data(val_or_test):
@@ -57,7 +57,7 @@ def _get_data(val_or_test):
 def _normalize(train_or_val_or_test, use_camera_a=True):
     if train_or_val_or_test == 'train':
         a,b,c = _get_train_data(train_or_val_or_test)
-        num_sample = 1000
+        num_sample = 1163
     else:
         a,b,c = _get_data(train_or_val_or_test)
         num_sample = 100
