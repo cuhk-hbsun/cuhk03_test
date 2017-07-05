@@ -31,7 +31,7 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
-parser.add_argument('--log-interval', type=int, default=2, metavar='N',
+parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='how many batches to wait before logging training status')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -70,19 +70,19 @@ def _normalize(train_or_val_or_test, use_camera_a=True):
     data_tensor = torch.from_numpy(data)
     print(data_tensor.size())
 
-    # data_mean = np.mean(data, (2,3))
-    # data_std = np.std(data, (2,3))
-    # data_mean_tensor = torch.from_numpy(data_mean)
-    # data_std_tensor = torch.from_numpy(data_std)
+    data_mean = np.mean(data, (2,3))
+    data_std = np.std(data, (2,3))
+    data_mean_tensor = torch.from_numpy(data_mean)
+    data_std_tensor = torch.from_numpy(data_std)
 
 
     data_tensor_nor =  data_tensor
 
-    # for i in range(num_sample):
-    #     transform=transforms.Compose([
-    #         transforms.Normalize(data_mean_tensor[i], data_std_tensor[i])
-    #     ])
-    #     data_tensor_nor[i] = transform(data_tensor[i])
+    for i in range(num_sample):
+        transform=transforms.Compose([
+            transforms.Normalize(data_mean_tensor[i], data_std_tensor[i])
+        ])
+        data_tensor_nor[i] = transform(data_tensor[i])
 
     features = data_tensor_nor
     targets = torch.from_numpy(c)
