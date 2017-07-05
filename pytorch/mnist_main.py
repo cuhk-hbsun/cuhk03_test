@@ -35,11 +35,14 @@ parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='how many batches to wait before logging training status')
 args = parser.parse_args()
 
+args.cuda = not args.no_cuda and torch.cuda.is_available()
+torch.manual_seed(args.seed)
+if args.cuda:
+    torch.cuda.manual_seed(args.seed)
 
 model = AlexNet()
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
-args.cuda = not args.no_cuda and torch.cuda.is_available()
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 train_loader = torch.utils.data.DataLoader(
     datasets.MNIST('../data', train=True, download=True,
