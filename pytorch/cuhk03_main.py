@@ -74,9 +74,10 @@ def _normalize(train_or_val_or_test, use_camera_a=True):
 
     # m = nn.UpsamplingBilinear2d(size=(224,224))
     # data_tensor_resize = m(data_tensor)
-    data_tensor_resize = data_tensor
+    # data_tensor_nor = data_tensor_resize
 
-    data_tensor_nor = data_tensor_resize
+    data_tensor_nor =  data_tensor
+
     for i in range(num_sample):
         transform=transforms.Compose([
             transforms.Normalize(data_mean_tensor[i], data_std_tensor[i])
