@@ -37,14 +37,14 @@ args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 def _get_train_data(train='train'):
-    with h5py.File('../CUHK03/cuhk-03.h5','r') as ff:
+    with h5py.File('cuhk-03.h5','r') as ff:
         a = np.array([ff['a'][train][str(i)][0] for i in range(1000)])
         b = np.array([ff['b'][train][str(i)][0] for i in range(1000)])
         c = np.array([ff['a'][train].keys()[i] for i in range(1000)], dtype=np.int32)
         return a,b,c
 
 def _get_data(val_or_test):
-    with h5py.File('../CUHK03/cuhk-03.h5','r') as ff:
+    with h5py.File('cuhk-03.h5','r') as ff:
         a = np.array([ff['a'][val_or_test][str(i)][0] for i in range(100)])
         b = np.array([ff['b'][val_or_test][str(i)][0] for i in range(100)])
         c = np.array([ff['a'][val_or_test].keys()[i] for i in range(100)], dtype=np.int32)

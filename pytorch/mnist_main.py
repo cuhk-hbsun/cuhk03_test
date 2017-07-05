@@ -87,7 +87,7 @@ def test(epoch):
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
-        m = nn.UpsamplingBilinear2d(scale_factor=9)
+        m = nn.UpsamplingBilinear2d(scale_factor=8)
         data = m(data)
         output = model(data)
         test_loss += F.cross_entropy(output, target).data[0]
