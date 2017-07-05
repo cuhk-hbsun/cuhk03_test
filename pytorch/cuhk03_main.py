@@ -35,6 +35,9 @@ parser.add_argument('--log-interval', type=int, default=2, metavar='N',
                     help='how many batches to wait before logging training status')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
+torch.manual_seed(args.seed)
+if args.cuda:
+    torch.cuda.manual_seed(args.seed)
 
 def _get_train_data(train='train'):
     with h5py.File('cuhk-03.h5','r') as ff:
@@ -88,6 +91,8 @@ def _normalize(train_or_val_or_test, use_camera_a=True):
 
 
 model = AlexNet()
+if args.cuda:
+    model.cuda()
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
 train_features, train_targets = _normalize('train', use_camera_a=True)
