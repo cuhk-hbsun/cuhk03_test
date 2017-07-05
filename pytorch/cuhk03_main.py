@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from torchvision import datasets, transforms
 import torch.utils.data as data_utils
-from mnist_alexnet import AlexNet
+from cuhk03_alexnet import AlexNet
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -17,8 +17,8 @@ from torch.autograd import Variable
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch CUHK03 Example')
-parser.add_argument('--train-batch-size', type=int, default=2, metavar='N',
-                    help='input batch size for training (default: 2)')
+parser.add_argument('--train-batch-size', type=int, default=10, metavar='N',
+                    help='input batch size for training (default: 10)')
 parser.add_argument('--test-batch-size', type=int, default=5, metavar='N',
                     help='input batch size for testing (default: 5)')
 parser.add_argument('--epochs', type=int, default=10, metavar='N',
@@ -65,24 +65,21 @@ def _normalize(train_or_val_or_test, use_camera_a=True):
 
     data = data.transpose(0, 3, 1, 2)
     data_tensor = torch.from_numpy(data)
-    data_tensor = Variable(data_tensor)
+    print(data_tensor.size())
 
-    data_mean = np.mean(data, (2,3))
-    data_std = np.std(data, (2,3))
-    data_mean_tensor = torch.from_numpy(data_mean)
-    data_std_tensor = torch.from_numpy(data_std)
+    # data_mean = np.mean(data, (2,3))
+    # data_std = np.std(data, (2,3))
+    # data_mean_tensor = torch.from_numpy(data_mean)
+    # data_std_tensor = torch.from_numpy(data_std)
 
-    # m = nn.UpsamplingBilinear2d(size=(224,224))
-    # data_tensor_resize = m(data_tensor)
-    # data_tensor_nor = data_tensor_resize
 
     data_tensor_nor =  data_tensor
 
-    for i in range(num_sample):
-        transform=transforms.Compose([
-            transforms.Normalize(data_mean_tensor[i], data_std_tensor[i])
-        ])
-        data_tensor_nor[i] = transform(data_tensor[i])
+    # for i in range(num_sample):
+    #     transform=transforms.Compose([
+    #         transforms.Normalize(data_mean_tensor[i], data_std_tensor[i])
+    #     ])
+    #     data_tensor_nor[i] = transform(data_tensor[i])
 
     features = data_tensor_nor
     targets = torch.from_numpy(c)
