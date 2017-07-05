@@ -9,7 +9,7 @@ model_urls = {
     'alexnet': 'https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth',
 }
 
-# the size of the input image is  1*251*251
+# the size of the input image is  1*224*224
 class AlexNet(nn.Module):
 
     def __init__(self, num_classes=10):

@@ -62,7 +62,8 @@ def train(epoch):
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
-        m = nn.UpsamplingBilinear2d(scale_factor=9)
+        m = nn.UpsamplingBilinear2d(scale_factor=8)
+        # resize 1*28*28 image to 1*224*224
         data = m(data)
         # print(data.size())
         optimizer.zero_grad()

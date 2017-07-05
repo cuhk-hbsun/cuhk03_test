@@ -16,7 +16,7 @@ def print_hdf5_file_structure(file_name) :
     # train_or_validation = 'train'
         length = len(item['a'][train_or_validation].keys())
         print('length of %s dataset: %d' %(train_or_validation, length))
-    # print_hdf5_item_structure(item)
+    print_hdf5_item_structure(item)
     file.close()
 
 def print_hdf5_item_structure(g, offset='    ') :
@@ -27,9 +27,9 @@ def print_hdf5_item_structure(g, offset='    ') :
 
     elif isinstance(g,h5py.Dataset) :
         print '(Dataset) ', g.name, '    len =', g.shape #, g.dtype
-        print '(Dataset_content, 5 images with size (160*60*3)) '
-        print g.value
-        sys.exit ( "scan five image from one camera" )
+        # print '(Dataset_content, 5 images with size (160*60*3)) '
+        # print g.value
+        # sys.exit ( "scan five image from one camera" )
 
     elif isinstance(g,h5py.Group) :
         print '(Group)', g.name
@@ -46,4 +46,5 @@ def print_hdf5_item_structure(g, offset='    ') :
 
 if __name__ == "__main__" :
     print_hdf5_file_structure('../CUHK03/cuhk-03.h5')
+    # print_hdf5_file_structure('cuhk-03.h5')
     sys.exit ( "End of test" )

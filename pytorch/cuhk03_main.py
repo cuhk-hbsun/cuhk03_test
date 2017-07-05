@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from torchvision import datasets, transforms
 import torch.utils.data as data_utils
-from alexnet import AlexNet
+from mnist_alexnet import AlexNet
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -58,19 +58,24 @@ def _normalize(train_or_val_or_test, use_camera_a=True):
     else:
         a,b,c = _get_data(train_or_val_or_test)
         num_sample = 100
+
     data = a
     if not use_camera_a:
         data = b
+
     data = data.transpose(0, 3, 1, 2)
+    data_tensor = torch.from_numpy(data)
+    data_tensor = Variable(data_tensor)
+
     data_mean = np.mean(data, (2,3))
     data_std = np.std(data, (2,3))
-
     data_mean_tensor = torch.from_numpy(data_mean)
     data_std_tensor = torch.from_numpy(data_std)
 
-    data_tensor = torch.from_numpy(data)
+    m = nn.UpsamplingBilinear2d(size=(224,224))
+    data_tensor_resize = m(data_tensor)
 
-    data_tensor_nor = data_tensor
+    data_tensor_nor = data_tensor_resize
     for i in range(num_sample):
         transform=transforms.Compose([
             transforms.Normalize(data_mean_tensor[i], data_std_tensor[i])
