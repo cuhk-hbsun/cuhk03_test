@@ -4,11 +4,11 @@ import h5py
 import sys
 import argparse
 import numpy as np
-import scipy
-import scipy.io as sio
-import matplotlib
-import matplotlib.image as matimg
-from PIL import Image
+# import scipy
+# import scipy.io as sio
+# import matplotlib
+# import matplotlib.image as matimg
+# from PIL import Image
 import torch
 from torchvision import datasets, transforms
 import torch.utils.data as data_utils
@@ -64,7 +64,6 @@ def _get_train_data(train):
             for k in range(num_of_same_image_array[i]):
                 image_id.append(image_id_temp[i])
         image_id = np.array(image_id)
-        print(image_id)
         return image_set, image_id, num_sample_total
 
 # def _get_train_data(train):
@@ -143,8 +142,8 @@ def train(epoch):
         data = data.float()
         target = target.long()
         optimizer.zero_grad()
-        image_set = data.data.numpy()
         print(target)
+        # image_set = data.data.numpy()
         # for i in range(5):
         #     img1 = image_set[i].transpose(1,2,0)
         #     scipy.misc.imsave('img'+str(i)+'.png', img1)
