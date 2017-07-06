@@ -17,8 +17,6 @@ from torch.autograd import Variable
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch CUHK03 Example')
-parser.add_argument('--hdf', dest='hdf_file_path',
-                    help='Processed CUHK03 file path.', required=True)
 parser.add_argument('--train-batch-size', type=int, default=5, metavar='N',
                     help='input batch size for training (default: 5)')
 parser.add_argument('--test-batch-size', type=int, default=10, metavar='N',
@@ -43,7 +41,7 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 def _get_train_data(train):
-    with h5py.FIle(args.hdf_file_path, 'r') as ff:
+    with h5py.FIle('cuhk-03.h5', 'r') as ff:
         temp = []
         num_sample = len(ff['a'][train+'_id'][str(0)])
         num_of_same_image_array = []
@@ -62,7 +60,7 @@ def _get_train_data(train):
 
 # def _get_train_data(train):
 #     # num_sample = 843
-#     with h5py.File(args.hdf_file_path,'r') as ff:
+#     with h5py.File('cuhk-03.h5','r') as ff:
 #         num_sample = len(ff['a'][train+'_id'][str(0)])
 #         image_set = np.array([ff['a'][train][str(i)][0] for i in range(num_sample)])
 #         image_id = np.array(ff['a'][train+'_id'][str(0)])
@@ -70,7 +68,7 @@ def _get_train_data(train):
 
 def _get_data(val_or_test):
     # num_sample = 62
-    with h5py.File(args.hdf_file_path,'r') as ff:
+    with h5py.File('cuhk-03.h5','r') as ff:
         num_sample = len(ff['b'][val_or_test+'_id'][str(0)])
         image_set = np.array([ff['b'][val_or_test][str(i)][0] for i in range(num_sample)])
         image_id = np.array(ff['b'][val_or_test+'_id'][str(0)])
