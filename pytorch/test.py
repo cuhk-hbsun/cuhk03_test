@@ -2,7 +2,6 @@ from __future__ import print_function
 import argparse
 import h5py
 import sys
-import argparse
 import numpy as np
 import torch
 from torchvision import datasets, transforms
@@ -38,7 +37,7 @@ args = parser.parse_args()
 
 
 def _get_data(train_or_val):
-    with h5py.File('../CUHK03/cuhk-03.h5','r') as ff:
+    with h5py.File('cuhk-03.h5','r') as ff:
         a = np.array([ff['a'][train_or_val][str(i)][1] for i in range(10)])
         b = np.array([ff['b'][train_or_val][str(i)][0] for i in range(10)])
         c = np.array([ff['a'][train_or_val].keys()[i] for i in range(10)], dtype=np.int32)

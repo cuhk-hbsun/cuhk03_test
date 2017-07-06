@@ -17,8 +17,8 @@ from torch.autograd import Variable
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch CUHK03 Example')
-parser.add_argument('--train-batch-size', type=int, default=10, metavar='N',
-                    help='input batch size for training (default: 10)')
+parser.add_argument('--train-batch-size', type=int, default=5, metavar='N',
+                    help='input batch size for training (default: 5)')
 parser.add_argument('--test-batch-size', type=int, default=10, metavar='N',
                     help='input batch size for testing (default: 10)')
 parser.add_argument('--epochs', type=int, default=10, metavar='N',
@@ -40,31 +40,26 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 def _get_train_data(train='train'):
+    num_sample = 843
     with h5py.File('cuhk-03.h5','r') as ff:
-        a = np.array([ff['a'][train][str(i)][0] for i in range(1163)])
-        b = np.array([ff['b'][train][str(i)][0] for i in range(1163)])
-        c = np.array([ff['a'][train].keys()[i] for i in range(1163)], dtype=np.int32)
-        return a,b,c
+        image_set = np.array([ff['a'][train][str(i)][0] for i in range(num_sample)])
+        image_id = np.array(ff['a'][train+'_id'][str(0)])
+        return image_set, image_id, num_sample
 
 def _get_data(val_or_test):
+    num_sample = 62
     with h5py.File('cuhk-03.h5','r') as ff:
-        a = np.array([ff['a'][val_or_test][str(i)][0] for i in range(100)])
-        b = np.array([ff['b'][val_or_test][str(i)][0] for i in range(100)])
-        c = np.array([ff['a'][val_or_test].keys()[i] for i in range(100)], dtype=np.int32)
-        class_length = len(ff['a'][val_or_test].keys())
-        return a,b,c
+        image_set = np.array([ff['b'][val_or_test][str(i)][0] for i in range(num_sample)])
+        image_id = np.array(ff['b'][val_or_test+'_id'][str(0)])
+        return image_set, image_id, num_sample
 
-def _normalize(train_or_val_or_test, use_camera_a=True):
+def _normalize(train_or_val_or_test):
     if train_or_val_or_test == 'train':
-        a,b,c = _get_train_data(train_or_val_or_test)
-        num_sample = 1163
+        image_set, image_id, num_sample = _get_train_data(train_or_val_or_test)
     else:
-        a,b,c = _get_data(train_or_val_or_test)
-        num_sample = 100
+        image_set, image_id, num_sample = _get_data(train_or_val_or_test)
 
-    data = a
-    if not use_camera_a:
-        data = b
+    data = image_set
 
     data = data.transpose(0, 3, 1, 2)
     data_tensor = torch.from_numpy(data)
@@ -85,7 +80,7 @@ def _normalize(train_or_val_or_test, use_camera_a=True):
         data_tensor_nor[i] = transform(data_tensor[i])
 
     features = data_tensor_nor
-    targets = torch.from_numpy(c)
+    targets = torch.from_numpy(image_id)
 
     return features, targets
 
@@ -95,11 +90,11 @@ if args.cuda:
     model.cuda()
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
-train_features, train_targets = _normalize('train', use_camera_a=True)
+train_features, train_targets = _normalize('train')
 train = data_utils.TensorDataset(train_features, train_targets)
 train_loader = data_utils.DataLoader(train, batch_size=args.train_batch_size, shuffle=True)
 
-test_features, test_targets = _normalize('test', use_camera_a=True)
+test_features, test_targets = _normalize('test')
 test = data_utils.TensorDataset(test_features, test_targets)
 test_loader = data_utils.DataLoader(test, batch_size=args.test_batch_size, shuffle=True)
 
@@ -112,8 +107,8 @@ def train(epoch):
         data, target = Variable(data), Variable(target)
         data = data.float()
         target = target.long()
-        print('data', data)
-        print('target', target)
+        # print('data', data)
+        # print('target', target)
         optimizer.zero_grad()
         output = model(data)
         # print('output', output)
