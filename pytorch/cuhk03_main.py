@@ -40,34 +40,34 @@ torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
-def _get_train_data(train):
-    with h5py.File('cuhk-03.h5', 'r') as ff:
-        temp = []
-        num_sample = len(ff['a'][train+'_id'][str(0)])
-        num_of_same_image_array = []
-        num_sample_total = 0
-        for i in range(num_sample):
-            num_of_same_image = len(ff['a'][train][str(i)])
-            num_sample_total += num_of_same_image
-            num_of_same_image_array.append(num_of_same_image)
-            for k in range(num_of_same_image):
-                temp.append(np.array(ff['a'][train][str(i)][k]))
-        image_set = np.array(temp)
-        image_id_temp = np.array(ff['a'][train+'_id'][str(0)])
-        image_id = []
-        for i in range(num_sample):
-            for k in range(num_of_same_image_array[i]):
-                image_id.append(image_id_temp[i])
-        image_id = np.array(image_id)
-        return image_set, image_id, num_sample_total
-
 # def _get_train_data(train):
-#     # num_sample = 843
-#     with h5py.File('cuhk-03.h5','r') as ff:
+#     with h5py.File('cuhk-03.h5', 'r') as ff:
+#         temp = []
 #         num_sample = len(ff['a'][train+'_id'][str(0)])
-#         image_set = np.array([ff['a'][train][str(i)][0] for i in range(num_sample)])
-#         image_id = np.array(ff['a'][train+'_id'][str(0)])
-#         return image_set, image_id, num_sample
+#         num_of_same_image_array = []
+#         num_sample_total = 0
+#         for i in range(num_sample):
+#             num_of_same_image = len(ff['a'][train][str(i)])
+#             num_sample_total += num_of_same_image
+#             num_of_same_image_array.append(num_of_same_image)
+#             for k in range(num_of_same_image):
+#                 temp.append(np.array(ff['a'][train][str(i)][k]))
+#         image_set = np.array(temp)
+#         image_id_temp = np.array(ff['a'][train+'_id'][str(0)])
+#         image_id = []
+#         for i in range(num_sample):
+#             for k in range(num_of_same_image_array[i]):
+#                 image_id.append(image_id_temp[i])
+#         image_id = np.array(image_id)
+#         return image_set, image_id, num_sample_total
+
+def _get_train_data(train):
+    # num_sample = 843
+    with h5py.File('cuhk-03.h5','r') as ff:
+        num_sample = len(ff['a'][train+'_id'][str(0)])
+        image_set = np.array([ff['a'][train][str(i)][0] for i in range(num_sample)])
+        image_id = np.array(ff['a'][train+'_id'][str(0)])
+        return image_set, image_id, num_sample
 
 def _get_data(val_or_test):
     # num_sample = 62
@@ -117,12 +117,13 @@ optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 train_features, train_targets = _normalize('train')
 print('train data size', train_features.size())
 print('train target size', train_targets.size())
+print('train target', train_targets)
 train = data_utils.TensorDataset(train_features, train_targets)
 train_loader = data_utils.DataLoader(train, batch_size=args.train_batch_size, shuffle=True)
 
 test_features, test_targets = _normalize('test')
 print('test data size', test_features.size())
-print('test target size', test_targets.size())
+print('test target', test_targets)
 test = data_utils.TensorDataset(test_features, test_targets)
 test_loader = data_utils.DataLoader(test, batch_size=args.test_batch_size, shuffle=True)
 
