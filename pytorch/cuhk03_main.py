@@ -17,6 +17,8 @@ from torch.autograd import Variable
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch CUHK03 Example')
+parser.add_argument('--hdf', dest='hdf_file_path',
+                    help='Processed CUHK03 file path.', required=True)
 parser.add_argument('--train-batch-size', type=int, default=5, metavar='N',
                     help='input batch size for training (default: 5)')
 parser.add_argument('--test-batch-size', type=int, default=10, metavar='N',
@@ -33,22 +35,43 @@ parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='how many batches to wait before logging training status')
+
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
-def _get_train_data(train='train'):
-    num_sample = 843
-    with h5py.File('cuhk-03.h5','r') as ff:
-        image_set = np.array([ff['a'][train][str(i)][0] for i in range(num_sample)])
-        image_id = np.array(ff['a'][train+'_id'][str(0)])
+def _get_train_data(train):
+    with h5py.FIle(args.hdf_file_path, 'r') as ff:
+        temp = []
+        num_sample = len(ff['a'][train+'_id'][str(0)])
+        num_of_same_image_array = []
+        for i in range(num_sample):
+            num_of_same_image = len(ff['a'][train][str(i)])
+            num_of_same_image_array.append(num_of_same_image)
+            for k in range(num_of_same_image):
+                temp.append(np.array(ff['a'][train][str(i)][k]))
+        image_set = np.array(temp)
+        image_id_temp = np.array(ff['b'][train+'_id'][str(0)])
+        image_id = []
+        for i in range(num_sample):
+            for k in range(num_of_same_image_array[i]):
+                image_id.append(image_id_temp[i])
         return image_set, image_id, num_sample
 
+# def _get_train_data(train):
+#     # num_sample = 843
+#     with h5py.File(args.hdf_file_path,'r') as ff:
+#         num_sample = len(ff['a'][train+'_id'][str(0)])
+#         image_set = np.array([ff['a'][train][str(i)][0] for i in range(num_sample)])
+#         image_id = np.array(ff['a'][train+'_id'][str(0)])
+#         return image_set, image_id, num_sample
+
 def _get_data(val_or_test):
-    num_sample = 62
-    with h5py.File('cuhk-03.h5','r') as ff:
+    # num_sample = 62
+    with h5py.File(args.hdf_file_path,'r') as ff:
+        num_sample = len(ff['b'][val_or_test+'_id'][str(0)])
         image_set = np.array([ff['b'][val_or_test][str(i)][0] for i in range(num_sample)])
         image_id = np.array(ff['b'][val_or_test+'_id'][str(0)])
         return image_set, image_id, num_sample
