@@ -41,22 +41,25 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 def _get_train_data(train):
-    with h5py.FIle('cuhk-03.h5', 'r') as ff:
+    with h5py.File('cuhk-03.h5', 'r') as ff:
         temp = []
         num_sample = len(ff['a'][train+'_id'][str(0)])
         num_of_same_image_array = []
+        num_sample_total = 0
         for i in range(num_sample):
             num_of_same_image = len(ff['a'][train][str(i)])
+            num_sample_total += num_of_same_image
             num_of_same_image_array.append(num_of_same_image)
             for k in range(num_of_same_image):
                 temp.append(np.array(ff['a'][train][str(i)][k]))
         image_set = np.array(temp)
-        image_id_temp = np.array(ff['b'][train+'_id'][str(0)])
+        image_id_temp = np.array(ff['a'][train+'_id'][str(0)])
         image_id = []
         for i in range(num_sample):
             for k in range(num_of_same_image_array[i]):
                 image_id.append(image_id_temp[i])
-        return image_set, image_id, num_sample
+        image_id = np.array(image_id)
+        return image_set, image_id, num_sample_total
 
 # def _get_train_data(train):
 #     # num_sample = 843
@@ -84,7 +87,7 @@ def _normalize(train_or_val_or_test):
 
     data = data.transpose(0, 3, 1, 2)
     data_tensor = torch.from_numpy(data)
-    print(data_tensor.size())
+    # print(data_tensor.size())
 
     data_mean = np.mean(data, (2,3))
     data_std = np.std(data, (2,3))
@@ -128,8 +131,8 @@ def train(epoch):
         data, target = Variable(data), Variable(target)
         data = data.float()
         target = target.long()
-        # print('data', data)
-        # print('target', target)
+        print('train data size', data.size())
+        print('train target size', target.size)
         optimizer.zero_grad()
         output = model(data)
         # print('output', output)
