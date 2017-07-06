@@ -1,1 +1,5 @@
 CUHK03/cuhk-03.h5
+pytorch/cuhk-03.h5
+*.mat
+*.png
+*.h5
