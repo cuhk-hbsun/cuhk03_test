@@ -115,10 +115,14 @@ if args.cuda:
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
 train_features, train_targets = _normalize('train')
+print('train data size', train_features.size())
+print('train target size', train_targets.size())
 train = data_utils.TensorDataset(train_features, train_targets)
 train_loader = data_utils.DataLoader(train, batch_size=args.train_batch_size, shuffle=True)
 
 test_features, test_targets = _normalize('test')
+print('test data size', test_features.size())
+print('test target size', test_targets.size())
 test = data_utils.TensorDataset(test_features, test_targets)
 test_loader = data_utils.DataLoader(test, batch_size=args.test_batch_size, shuffle=True)
 
@@ -131,8 +135,6 @@ def train(epoch):
         data, target = Variable(data), Variable(target)
         data = data.float()
         target = target.long()
-        print('train data size', data.size())
-        print('train target size', target.size)
         optimizer.zero_grad()
         output = model(data)
         # print('output', output)
