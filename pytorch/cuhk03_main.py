@@ -4,15 +4,16 @@ import h5py
 import sys
 import argparse
 import numpy as np
-# import scipy
+# import scipy.misc
 # import scipy.io as sio
 # import matplotlib
 # import matplotlib.image as matimg
 # from PIL import Image
 import torch
 from torchvision import datasets, transforms
+from torchvision import models
 import torch.utils.data as data_utils
-from cuhk03_alexnet import AlexNet
+# from cuhk03_alexnet import AlexNet
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -101,7 +102,7 @@ def _normalize(train_or_val_or_test):
     data_std_tensor = torch.from_numpy(data_std)
 
 
-    data_tensor_nor =  data_tensor
+    data_tensor_nor = data_tensor
 
     for i in range(num_sample):
         transform=transforms.Compose([
@@ -114,8 +115,8 @@ def _normalize(train_or_val_or_test):
 
     return features, targets
 
-
-model = AlexNet()
+model = models.alexnet(pretrained=True)
+# model = AlexNet()
 if args.cuda:
     model.cuda()
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
@@ -141,8 +142,8 @@ def train(epoch):
         data, target = Variable(data), Variable(target)
         data = data.float()
         target = target.long()
+        # print(target)
         optimizer.zero_grad()
-        print(target)
         # image_set = data.data.numpy()
         # for i in range(5):
         #     img1 = image_set[i].transpose(1,2,0)
@@ -150,7 +151,6 @@ def train(epoch):
         # # sio.savemat('np_array.mat', {'vect':image_set})
         # sys.exit('exit')
         output = model(data)
-        # print('output', output)
         loss = F.cross_entropy(output, target)
         loss.backward()
         optimizer.step()
@@ -169,7 +169,7 @@ def test(epoch):
         data, target = Variable(data, volatile=True), Variable(target)
         data = data.float()
         target = target.long()
-        print('target', target)
+        # print('target', target)
         output = model(data)
         # print('output', output)
         test_loss += F.cross_entropy(output, target).data[0]
