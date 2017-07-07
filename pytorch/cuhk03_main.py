@@ -94,6 +94,10 @@ def _normalize(train_or_val_or_test):
     data = image_set
 
     data = data.transpose(0, 3, 1, 2)
+    for i in range(num_sample):
+        for k in range(3):
+            data[i][k] = data[i][k].resize((28,28))
+            
     data_tensor = torch.from_numpy(data)
 
     data_mean = np.mean(data, (2,3))
