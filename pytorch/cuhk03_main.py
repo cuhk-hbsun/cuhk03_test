@@ -117,8 +117,8 @@ def _normalize(train_or_val_or_test):
     return features, targets
 
 
-# model = models.alexnet(pretrained=True)
-model = AlexNet()
+model = models.alexnet(pretrained=False)
+# model = AlexNet()
 if args.cuda:
     model.cuda()
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
