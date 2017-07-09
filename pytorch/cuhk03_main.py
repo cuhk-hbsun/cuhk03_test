@@ -29,8 +29,8 @@ parser.add_argument('--test-batch-size', type=int, default=10, metavar='N',
                     help='input batch size for testing (default: 10)')
 parser.add_argument('--epochs', type=int, default=10, metavar='N',
                     help='number of epochs to train (default: 10)')
-parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
-                    help='learning rate (default: 0.01)')
+parser.add_argument('--lr', type=float, default=0.000001, metavar='LR',
+                    help='learning rate (default: 0.000001)')
 parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
                     help='SGD momentum (default: 0.5)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -120,8 +120,8 @@ def _normalize(train_or_val_or_test, group):
     return features, targets
 
 
-# model = models.alexnet(pretrained=False)
-model = AlexNet()
+model = models.alexnet(pretrained=True)
+# model = AlexNet()
 if args.cuda:
     model.cuda()
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
