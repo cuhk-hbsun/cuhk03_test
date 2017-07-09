@@ -4,8 +4,8 @@ import h5py
 import sys
 import argparse
 import numpy as np
-# import scipy.misc
-# import scipy.io as sio
+import scipy.misc
+import scipy.io as sio
 # import matplotlib
 # import matplotlib.image as matimg
 # from PIL import Image
@@ -23,14 +23,14 @@ from torch.autograd import Variable
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch CUHK03 Example')
-parser.add_argument('--train-batch-size', type=int, default=5, metavar='N',
-                    help='input batch size for training (default: 5)')
+parser.add_argument('--train-batch-size', type=int, default=20, metavar='N',
+                    help='input batch size for training (default: 20)')
 parser.add_argument('--test-batch-size', type=int, default=10, metavar='N',
                     help='input batch size for testing (default: 10)')
 parser.add_argument('--epochs', type=int, default=10, metavar='N',
                     help='number of epochs to train (default: 10)')
-parser.add_argument('--lr', type=float, default=0.000001, metavar='LR',
-                    help='learning rate (default: 0.000001)')
+parser.add_argument('--lr', type=float, default=1e-6, metavar='LR',
+                    help='learning rate (default: 1e-6)')
 parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
                     help='SGD momentum (default: 0.5)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -67,16 +67,16 @@ def _get_train_data(train, group):
         image_id = np.array(image_id)
         return image_set, image_id, num_sample_total
         """below for image save"""
-        # num_of_same_image = len(ff['a'][train][str(292)])
+        # num_of_same_image = len(ff['a'][train][str(717)])
         # num_sample_total += num_of_same_image
         # num_of_same_image_array.append(num_of_same_image)
         # for k in range(num_of_same_image):
-        #     temp.append(np.array(ff['a'][train][str(292)][k]))
+        #     temp.append(np.array(ff['a'][train][str(717)][k]))
         # image_set = np.array(temp)
         # image_id_temp = np.array(ff['a'][train+'_id'][str(0)])
         # image_id = []
         # for k in range(num_of_same_image_array[0]):
-        #     image_id.append(image_id_temp[292])
+        #     image_id.append(image_id_temp[717])
         # image_id = np.array(image_id)
         # return image_set, image_id, num_sample_total
 
@@ -120,8 +120,8 @@ def _normalize(train_or_val_or_test, group):
     return features, targets
 
 
-model = models.alexnet(pretrained=True)
-# model = AlexNet()
+# model = models.alexnet(pretrained=False)
+model = AlexNet()
 if args.cuda:
     model.cuda()
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
@@ -150,7 +150,7 @@ def train(epoch):
         # print(target)
         # target_id = target.data.numpy()
         # image_set = data.data.numpy()
-        # for i in range(5):
+        # for i in range(3):
         #     img1 = image_set[i].transpose(1,2,0)
         #     scipy.misc.imsave('train_'+str(i)+'_'+str(target_id[i])+'.png', img1)
         # sys.exit('exit')
@@ -182,6 +182,7 @@ def test(epoch):
         #     scipy.misc.imsave('test_'+str(i)+'_'+str(target_id[i])+'.png', img1)
         # sys.exit('exit')
         output = model(data)
+        print(output.size())
         test_loss += F.cross_entropy(output, target).data[0]
         pred = output.data.max(1)[1] # get the index of the max log-probability
         correct += pred.eq(target.data).cpu().sum()
