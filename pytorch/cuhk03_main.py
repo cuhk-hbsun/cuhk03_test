@@ -46,20 +46,20 @@ torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
-def _get_train_data(train):
+def _get_train_data(train, group):
     with h5py.File('cuhk-03.h5', 'r') as ff:
         temp = []
-        num_sample = len(ff['a'][train+'_id'][str(0)])
+        num_sample = len(ff[group][train+'_id'][str(0)])
         num_of_same_image_array = []
         num_sample_total = 0
         for i in range(num_sample):
-            num_of_same_image = len(ff['a'][train][str(i)])
+            num_of_same_image = len(ff[group][train][str(i)])
             num_sample_total += num_of_same_image
             num_of_same_image_array.append(num_of_same_image)
             for k in range(num_of_same_image):
-                temp.append(np.array(ff['a'][train][str(i)][k]))
+                temp.append(np.array(ff[group][train][str(i)][k]))
         image_set = np.array(temp)
-        image_id_temp = np.array(ff['a'][train+'_id'][str(0)])
+        image_id_temp = np.array(ff[group][train+'_id'][str(0)])
         image_id = []
         for i in range(num_sample):
             for k in range(num_of_same_image_array[i]):
@@ -81,18 +81,18 @@ def _get_train_data(train):
         # return image_set, image_id, num_sample_total
 
 
-def _get_data(val_or_test):
+def _get_data(val_or_test, group):
     with h5py.File('cuhk-03.h5','r') as ff:
-        num_sample = len(ff['a'][val_or_test+'_id'][str(0)])
-        image_set = np.array([ff['a'][val_or_test][str(i)][0] for i in range(num_sample)])
-        image_id = np.array(ff['a'][val_or_test+'_id'][str(0)])
+        num_sample = len(ff[group][val_or_test+'_id'][str(0)])
+        image_set = np.array([ff[group][val_or_test][str(i)][0] for i in range(num_sample)])
+        image_id = np.array(ff[group][val_or_test+'_id'][str(0)])
         return image_set, image_id, num_sample
 
-def _normalize(train_or_val_or_test):
+def _normalize(train_or_val_or_test, group):
     if train_or_val_or_test == 'train':
-        image_set, image_id, num_sample = _get_train_data(train_or_val_or_test)
+        image_set, image_id, num_sample = _get_train_data(train_or_val_or_test, group)
     else:
-        image_set, image_id, num_sample = _get_data(train_or_val_or_test)
+        image_set, image_id, num_sample = _get_data(train_or_val_or_test, group)
 
     data = image_set
 
@@ -126,13 +126,13 @@ if args.cuda:
     model.cuda()
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
-train_features, train_targets = _normalize('train')
+train_features, train_targets = _normalize('train', 'a')
 print('train data size', train_features.size())
 print('train target size', train_targets.size())
 train = data_utils.TensorDataset(train_features, train_targets)
 train_loader = data_utils.DataLoader(train, batch_size=args.train_batch_size, shuffle=True)
 
-test_features, test_targets = _normalize('test')
+test_features, test_targets = _normalize('test', 'b')
 print('test data size', test_features.size())
 print('test target size', test_targets.size())
 test = data_utils.TensorDataset(test_features, test_targets)
