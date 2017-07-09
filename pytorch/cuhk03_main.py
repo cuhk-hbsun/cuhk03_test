@@ -4,8 +4,8 @@ import h5py
 import sys
 import argparse
 import numpy as np
-# import scipy.misc
-# import scipy.io as sio
+import scipy.misc
+import scipy.io as sio
 # import matplotlib
 # import matplotlib.image as matimg
 # from PIL import Image
@@ -66,23 +66,26 @@ def _get_train_data(train):
                 image_id.append(image_id_temp[i])
         image_id = np.array(image_id)
         return image_set, image_id, num_sample_total
+        """below for image save"""
+        # num_of_same_image = len(ff['a'][train][str(292)])
+        # num_sample_total += num_of_same_image
+        # num_of_same_image_array.append(num_of_same_image)
+        # for k in range(num_of_same_image):
+        #     temp.append(np.array(ff['a'][train][str(292)][k]))
+        # image_set = np.array(temp)
+        # image_id_temp = np.array(ff['a'][train+'_id'][str(0)])
+        # image_id = []
+        # for k in range(num_of_same_image_array[0]):
+        #     image_id.append(image_id_temp[292])
+        # image_id = np.array(image_id)
+        # return image_set, image_id, num_sample_total
 
-# def _get_train_data(train):
-#     # num_sample = 843
-#     with h5py.File('cuhk-03.h5','r') as ff:
-#         num_sample = len(ff['a'][train+'_id'][str(0)])
-#         # num_sample = 10
-#         image_set = np.array([ff['a'][train][str(i)][0] for i in range(num_sample)])
-#         image_id = np.array(ff['a'][train+'_id'][str(0)])
-#         # image_id = image_id[1:11]
-#         return image_set, image_id, num_sample
 
 def _get_data(val_or_test):
-    # num_sample = 62
     with h5py.File('cuhk-03.h5','r') as ff:
-        num_sample = len(ff['b'][val_or_test+'_id'][str(0)])
-        image_set = np.array([ff['b'][val_or_test][str(i)][0] for i in range(num_sample)])
-        image_id = np.array(ff['b'][val_or_test+'_id'][str(0)])
+        num_sample = len(ff['a'][val_or_test+'_id'][str(0)])
+        image_set = np.array([ff['a'][val_or_test][str(i)][0] for i in range(num_sample)])
+        image_id = np.array(ff['a'][val_or_test+'_id'][str(0)])
         return image_set, image_id, num_sample
 
 def _normalize(train_or_val_or_test):
@@ -145,13 +148,13 @@ def train(epoch):
         data = data.float()
         target = target.long()
         # print(target)
-        optimizer.zero_grad()
+        # target_id = target.data.numpy()
         # image_set = data.data.numpy()
         # for i in range(5):
         #     img1 = image_set[i].transpose(1,2,0)
-        #     scipy.misc.imsave('img'+str(i)+'.png', img1)
-        # # sio.savemat('np_array.mat', {'vect':image_set})
+        #     scipy.misc.imsave('train_'+str(i)+'_'+str(target_id[i])+'.png', img1)
         # sys.exit('exit')
+        optimizer.zero_grad()
         output = model(data)
         loss = F.cross_entropy(output, target)
         loss.backward()
@@ -172,11 +175,15 @@ def test(epoch):
         data = data.float()
         target = target.long()
         # print('target', target)
+        # image_set = data.data.numpy()
+        # target_id = target.data.numpy()
+        # for i in range(10):
+        #     img1 = image_set[i].transpose(1,2,0)
+        #     scipy.misc.imsave('test_'+str(i)+'_'+str(target_id[i])+'.png', img1)
+        # sys.exit('exit')
         output = model(data)
-        # print('output', output)
         test_loss += F.cross_entropy(output, target).data[0]
         pred = output.data.max(1)[1] # get the index of the max log-probability
-        # print('pred', pred)
         correct += pred.eq(target.data).cpu().sum()
 
     test_loss = test_loss
