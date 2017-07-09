@@ -68,8 +68,8 @@ test_loader = torch.utils.data.DataLoader(
 def train(epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
-        print(data)
-        print(target)
+        # print(data)
+        # print(target)
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
