@@ -4,8 +4,8 @@ import h5py
 import sys
 import argparse
 import numpy as np
-import scipy.misc
-import scipy.io as sio
+# import scipy.misc
+# import scipy.io as sio
 # import matplotlib
 # import matplotlib.image as matimg
 # from PIL import Image
@@ -120,8 +120,8 @@ def _normalize(train_or_val_or_test):
     return features, targets
 
 
-model = models.alexnet(pretrained=False)
-# model = AlexNet()
+# model = models.alexnet(pretrained=False)
+model = AlexNet()
 if args.cuda:
     model.cuda()
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
