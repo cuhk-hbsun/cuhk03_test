@@ -24,8 +24,8 @@ parser.add_argument('--test-batch-size', type=int, default=10, metavar='N',
                     help='input batch size for testing (default: 10)')
 parser.add_argument('--epochs', type=int, default=10, metavar='N',
                     help='number of epochs to train (default: 10)')
-parser.add_argument('--lr', type=float, default=1e-6, metavar='LR',
-                    help='learning rate (default: 1e-6)')
+parser.add_argument('--lr', type=float, default=1e-4, metavar='LR',
+                    help='learning rate (default: 1e-4)')
 parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
                     help='SGD momentum (default: 0.5)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -41,8 +41,9 @@ torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
-model = models.alexnet(pretrained=True)
-model.classifier._modules['6'] = nn.Linear(4096, 843)
+# model = models.alexnet(pretrained=True)
+# model.classifier._modules['6'] = nn.Linear(4096, 843)
+model = AlexNet()
 if args.cuda:
     model.cuda()
 
