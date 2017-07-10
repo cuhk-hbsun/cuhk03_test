@@ -87,8 +87,13 @@ def _get_data(val_or_test, group):
         return features, targets
 
 
-# model = models.alexnet(pretrained=False)
-model = AlexNet()
+# model = AlexNet()
+model = models.alexnet(pretrained=True)
+
+# remove last fully-connected layer
+new_classifier = nn.Sequential(*list(model.classifier.children())[:-1])
+model.classifier = new_classifier
+
 if args.cuda:
     model.cuda()
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
@@ -97,13 +102,7 @@ train_features, train_targets, mean, std = _get_train_data('train', 'a')
 print('train data size', train_features.size())
 print('train target size', train_targets.size())
 train = data_utils.TensorDataset(train_features, train_targets)
-# train_loader = data_utils.DataLoader(train, batch_size=args.train_batch_size, shuffle=True)
-train_loader = data_utils.DataLoader(train,
-                                    transform=transforms.Compose([
-                                        # transforms.ToTensor(),
-                                        transforms.Normalize((mean[0],mean[1],mean[2]), (std[0],std[1],std[2]))
-                                    ]),
-                                    batch_size=args.train_batch_size, shuffle=True)
+train_loader = data_utils.DataLoader(train, batch_size=args.train_batch_size, shuffle=True)
 
 test_features, test_targets = _get_data('test', 'b')
 print('test data size', test_features.size())
@@ -121,15 +120,6 @@ def train(epoch):
         data = data.float()  # with size of (batch_size * 3 * 224 * 224)
         target = target.long() # with size of (batch_size)
 
-        # import pdb
-        # pdb.set_trace()
-        # print(target)
-        # target_id = target.data.numpy()
-        # image_set = data.data.numpy()
-        # for i in range(3):
-        #     img1 = image_set[i].transpose(1,2,0)
-        #     scipy.misc.imsave('train_'+str(i)+'_'+str(target_id[i])+'.png', img1)
-        # sys.exit('exit')
         optimizer.zero_grad()
         output = model(data)
         loss = F.cross_entropy(output, target)
@@ -150,13 +140,7 @@ def test(epoch):
         data, target = Variable(data, volatile=True), Variable(target)
         data = data.float()
         target = target.long()
-        # print('target', target)
-        # image_set = data.data.numpy()
-        # target_id = target.data.numpy()
-        # for i in range(10):
-        #     img1 = image_set[i].transpose(1,2,0)
-        #     scipy.misc.imsave('test_'+str(i)+'_'+str(target_id[i])+'.png', img1)
-        # sys.exit('exit')
+
         output = model(data)
         test_loss += F.cross_entropy(output, target).data[0]
         pred = output.data.max(1)[1] # get the index of the max log-probability
