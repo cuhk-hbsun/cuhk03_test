@@ -24,8 +24,8 @@ parser.add_argument('--test-batch-size', type=int, default=10, metavar='N',
                     help='input batch size for testing (default: 10)')
 parser.add_argument('--epochs', type=int, default=10, metavar='N',
                     help='number of epochs to train (default: 10)')
-parser.add_argument('--lr', type=float, default=1e-4, metavar='LR',
-                    help='learning rate (default: 1e-4)')
+parser.add_argument('--lr', type=float, default=1e-6, metavar='LR',
+                    help='learning rate (default: 1e-6)')
 parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
                     help='SGD momentum (default: 0.5)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -54,22 +54,12 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 train_loader = torch.utils.data.DataLoader(
     datasets.ImageFolder('./train',
                    transform=transforms.Compose([
-                       transforms.RandomSizedCrop(224),
-                       transforms.RandomHorizontalFlip(),
+                       transforms.Scale((224,224), interpolation=2)
                        transforms.ToTensor(),
                        transforms.Normalize(mean = [ 0.367, 0.362, 0.357 ],
                                             std = [ 0.244, 0.247, 0.249 ]),
                    ])),
     batch_size=args.train_batch_size, shuffle=True, **kwargs)
-test_loader = torch.utils.data.DataLoader(
-    datasets.ImageFolder('./test', transform=transforms.Compose([
-                       transforms.RandomSizedCrop(224),
-                       transforms.RandomHorizontalFlip(),
-                       transforms.ToTensor(),
-                       transforms.Normalize(mean = [ 0.367, 0.362, 0.357 ],
-                                            std = [ 0.244, 0.247, 0.249 ]),
-                   ])),
-    batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
 
 def train(epoch):
@@ -88,26 +78,8 @@ def train(epoch):
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.data[0]))
 
-def test(epoch):
-    model.eval()
-    test_loss = 0
-    correct = 0
-    for data, target in test_loader:
-        if args.cuda:
-            data, target = data.cuda(), target.cuda()
-        data, target = Variable(data, volatile=True), Variable(target)
-        output = model(data)
-        test_loss += F.cross_entropy(output, target).data[0]
-        pred = output.data.max(1)[1] # get the index of the max log-probability
-        correct += pred.eq(target.data).cpu().sum()
-
-    test_loss = test_loss
-    test_loss /= len(test_loader) # loss function already averages over batch size
-    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-        test_loss, correct, len(test_loader.dataset),
-        100. * correct / len(test_loader.dataset)))
 
 
 for epoch in range(1, args.epochs + 1):
     train(epoch)
-    test(epoch)
+    # test(epoch)
