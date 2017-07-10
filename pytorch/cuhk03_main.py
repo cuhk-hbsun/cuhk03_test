@@ -89,17 +89,17 @@ def _get_data(val_or_test, group):
 
 # model = AlexNet()
 model = models.alexnet(pretrained=True)
-
 # remove last fully-connected layer
 # new_classifier = nn.Sequential(*list(model.classifier.children())[:-1])
 # model.classifier = new_classifier
 # modify last fc layer
-for param in model.parameters():
-    param.requires_grad = False
-model.fc = nn.Linear(4096, 843)
+# for param in model.parameters():
+#     param.requires_grad = False
+# model.fc = nn.Linear(4096, 843)
+model.classifier._modules['6'] = nn.Linear(4096, 843)
 if args.cuda:
     model.cuda()
-    
+
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
 train_features, train_targets, mean, std = _get_train_data('train', 'a')
