@@ -54,7 +54,7 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 train_loader = torch.utils.data.DataLoader(
     datasets.ImageFolder('./train',
                    transform=transforms.Compose([
-                       transforms.Scale((224,224), interpolation=2)
+                    #    transforms.Scale((224,224), interpolation=2),
                        transforms.ToTensor(),
                        transforms.Normalize(mean = [ 0.367, 0.362, 0.357 ],
                                             std = [ 0.244, 0.247, 0.249 ]),
