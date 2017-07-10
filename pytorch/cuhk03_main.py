@@ -4,8 +4,8 @@ import h5py
 import sys
 import argparse
 import numpy as np
-import scipy.misc
-import scipy.io as sio
+# import scipy.misc
+# import scipy.io as sio
 # import matplotlib
 # import matplotlib.image as matimg
 # from PIL import Image
@@ -65,20 +65,15 @@ def _get_train_data(train, group):
             for k in range(num_of_same_image_array[i]):
                 image_id.append(image_id_temp[i])
         image_id = np.array(image_id)
-        return image_set, image_id, num_sample_total
-        """below for image save"""
-        # num_of_same_image = len(ff['a'][train][str(717)])
-        # num_sample_total += num_of_same_image
-        # num_of_same_image_array.append(num_of_same_image)
-        # for k in range(num_of_same_image):
-        #     temp.append(np.array(ff['a'][train][str(717)][k]))
-        # image_set = np.array(temp)
-        # image_id_temp = np.array(ff['a'][train+'_id'][str(0)])
-        # image_id = []
-        # for k in range(num_of_same_image_array[0]):
-        #     image_id.append(image_id_temp[717])
-        # image_id = np.array(image_id)
-        # return image_set, image_id, num_sample_total
+
+        data = image_set.transpose(0, 3, 1, 2)
+        data_for_mean = image_set.transpose(3, 0, 1, 2)
+        data_mean = np.mean(data_for_mean, (1, 2, 3))
+        data_std = np.std(data_for_mean, (1, 2, 3))
+        features = torch.from_numpy(data)
+        targets = torch.from_numpy(image_id)
+
+        return features, targets, data_mean, data_std
 
 
 def _get_data(val_or_test, group):
@@ -86,38 +81,10 @@ def _get_data(val_or_test, group):
         num_sample = len(ff[group][val_or_test+'_id'][str(0)])
         image_set = np.array([ff[group][val_or_test][str(i)][0] for i in range(num_sample)])
         image_id = np.array(ff[group][val_or_test+'_id'][str(0)])
-        return image_set, image_id, num_sample
-
-def _normalize(train_or_val_or_test, group):
-    if train_or_val_or_test == 'train':
-        image_set, image_id, num_sample = _get_train_data(train_or_val_or_test, group)
-    else:
-        image_set, image_id, num_sample = _get_data(train_or_val_or_test, group)
-
-    data = image_set
-
-    data = data.transpose(0, 3, 1, 2)
-
-    data_tensor = torch.from_numpy(data)
-
-    data_mean = np.mean(data, (2,3))
-    data_std = np.std(data, (2,3))
-    data_mean_tensor = torch.from_numpy(data_mean)
-    data_std_tensor = torch.from_numpy(data_std)
-
-
-    data_tensor_nor = data_tensor
-
-    for i in range(num_sample):
-        transform=transforms.Compose([
-            transforms.Normalize(data_mean_tensor[i], data_std_tensor[i])
-        ])
-        data_tensor_nor[i] = transform(data_tensor[i])
-
-    features = data_tensor_nor
-    targets = torch.from_numpy(image_id)
-
-    return features, targets
+        data = image_set.transpose(0, 3, 1, 2)
+        features = torch.from_numpy(data)
+        targets = torch.from_numpy(image_id)
+        return features, targets
 
 
 # model = models.alexnet(pretrained=False)
@@ -126,13 +93,19 @@ if args.cuda:
     model.cuda()
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
-train_features, train_targets = _normalize('train', 'a')
+train_features, train_targets, mean, std = _get_train_data('train', 'a')
 print('train data size', train_features.size())
 print('train target size', train_targets.size())
 train = data_utils.TensorDataset(train_features, train_targets)
-train_loader = data_utils.DataLoader(train, batch_size=args.train_batch_size, shuffle=True)
+# train_loader = data_utils.DataLoader(train, batch_size=args.train_batch_size, shuffle=True)
+train_loader = data_utils.DataLoader(train,
+                                    transform=transforms.Compose([
+                                        # transforms.ToTensor(),
+                                        transforms.Normalize((mean[0],mean[1],mean[2]), (std[0],std[1],std[2]))
+                                    ]),
+                                    batch_size=args.train_batch_size, shuffle=True)
 
-test_features, test_targets = _normalize('test', 'b')
+test_features, test_targets = _get_data('test', 'b')
 print('test data size', test_features.size())
 print('test target size', test_targets.size())
 test = data_utils.TensorDataset(test_features, test_targets)
@@ -145,8 +118,11 @@ def train(epoch):
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
-        data = data.float()
-        target = target.long()
+        data = data.float()  # with size of (batch_size * 3 * 224 * 224)
+        target = target.long() # with size of (batch_size)
+
+        # import pdb
+        # pdb.set_trace()
         # print(target)
         # target_id = target.data.numpy()
         # image_set = data.data.numpy()
@@ -182,7 +158,6 @@ def test(epoch):
         #     scipy.misc.imsave('test_'+str(i)+'_'+str(target_id[i])+'.png', img1)
         # sys.exit('exit')
         output = model(data)
-        print(output.size())
         test_loss += F.cross_entropy(output, target).data[0]
         pred = output.data.max(1)[1] # get the index of the max log-probability
         correct += pred.eq(target.data).cpu().sum()
