@@ -41,15 +41,15 @@ torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
-# model = models.alexnet(pretrained=True)
-# model.classifier._modules['6'] = nn.Linear(4096, 843)
-model = AlexNet()
+model = models.alexnet(pretrained=True)
+model.classifier._modules['6'] = nn.Linear(4096, 843)
+# model = AlexNet()
 if args.cuda:
     model.cuda()
 
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
-# Data loading code
+# Data loading
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 train_loader = torch.utils.data.DataLoader(
     datasets.ImageFolder('./train',
@@ -57,8 +57,8 @@ train_loader = torch.utils.data.DataLoader(
                        transforms.RandomSizedCrop(224),
                        transforms.RandomHorizontalFlip(),
                        transforms.ToTensor(),
-                       transforms.Normalize(mean = [ 0.485, 0.456, 0.406 ],
-                                            std = [ 0.229, 0.224, 0.225 ]),
+                       transforms.Normalize(mean = [ 0.367, 0.362, 0.357 ],
+                                            std = [ 0.244, 0.247, 0.249 ]),
                    ])),
     batch_size=args.train_batch_size, shuffle=True, **kwargs)
 test_loader = torch.utils.data.DataLoader(
@@ -66,8 +66,8 @@ test_loader = torch.utils.data.DataLoader(
                        transforms.RandomSizedCrop(224),
                        transforms.RandomHorizontalFlip(),
                        transforms.ToTensor(),
-                       transforms.Normalize(mean = [ 0.485, 0.456, 0.406 ],
-                                            std = [ 0.229, 0.224, 0.225 ]),
+                       transforms.Normalize(mean = [ 0.367, 0.362, 0.357 ],
+                                            std = [ 0.244, 0.247, 0.249 ]),
                    ])),
     batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
