@@ -41,12 +41,20 @@ torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
-model = models.alexnet(pretrained=True)
-m = model.classifier._modules['6']
-m = nn.Linear(4096, 843)
+# model = models.alexnet(pretrained=True)
+# m = model.classifier._modules['6']
+# m = nn.Linear(4096, 843)
+# m.weight.data.normal_(0.0, 0.3)
+# import torch.nn.init as init
+# init.constant(m.bias, 0.0)
+
+model = models.resnet152(pretrained=True)
+m = list(model.children())[-1]
+num_ftrs = model.fc.in_features
+m = nn.Linear(num_ftrs, 843)
 m.weight.data.normal_(0.0, 0.3)
-import torch.nn.init as init
-init.constant(m.bias, 0.0)
+m.bias.data.zero_()
+# m.bias.data.fill_(0)
 
 # model = AlexNet()
 if args.cuda:
@@ -63,6 +71,8 @@ train_loader = torch.utils.data.DataLoader(
                        transforms.ToTensor(),
                        transforms.Normalize(mean = [ 0.367, 0.362, 0.357 ],
                                             std = [ 0.244, 0.247, 0.249 ]),
+                    #    transforms.Normalize(mean=[0.485, 0.456, 0.406],  # ImageNet
+                    #                         std=[0.229, 0.224, 0.225])
                    ])),
     batch_size=args.train_batch_size, shuffle=True, **kwargs)
 

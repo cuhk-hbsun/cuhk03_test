@@ -88,15 +88,23 @@ def _get_data(val_or_test, group):
 
 
 # model = AlexNet()
-model = models.alexnet(pretrained=True)
-m = model.classifier._modules['6']
-m = nn.Linear(4096, 843)
-m.weight.data.normal_(0.0, 0.3)
-import torch.nn.init as init
-init.constant(m.bias, 0.0)
-# remove last fully-connected layer
+
+# model = models.alexnet(pretrained=True)
+# m = model.classifier._modules['6']
+# m = nn.Linear(4096, 843)
+# m.weight.data.normal_(0.0, 0.3)
+# import torch.nn.init as init
+# init.constant(m.bias, 0.0)
+"""remove last fully-connected layer"""
 # new_classifier = nn.Sequential(*list(model.classifier.children())[:-1])
 # model.classifier = new_classifier
+
+model = models.resnet152(pretrained=True)
+m = list(model.children())[-1]
+num_ftrs = model.fc.in_features
+m = nn.Linear(num_ftrs, 843)
+m.weight.data.normal_(0.0, 0.3)
+m.bias.data.zero_()
 
 if args.cuda:
     model.cuda()
