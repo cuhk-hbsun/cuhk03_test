@@ -22,10 +22,10 @@ parser.add_argument('--train-batch-size', type=int, default=20, metavar='N',
                     help='input batch size for training (default: 20)')
 parser.add_argument('--test-batch-size', type=int, default=10, metavar='N',
                     help='input batch size for testing (default: 10)')
-parser.add_argument('--epochs', type=int, default=10, metavar='N',
-                    help='number of epochs to train (default: 10)')
-parser.add_argument('--lr', type=float, default=1e-4, metavar='LR',
-                    help='learning rate (default: 1e-4)')
+parser.add_argument('--epochs', type=int, default=30, metavar='N',
+                    help='number of epochs to train (default: 30)')
+parser.add_argument('--lr', type=float, default=0.005, metavar='LR',
+                    help='learning rate (default: 0.005)')
 parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
                     help='SGD momentum (default: 0.5)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -44,8 +44,10 @@ if args.cuda:
 model = models.alexnet(pretrained=True)
 m = model.classifier._modules['6']
 m = nn.Linear(4096, 843)
-m.weight.data.normal_(0.0, 0.5)
-m.bias.data.normal_(0.0, 0.0)
+m.weight.data.normal_(0.0, 0.3)
+import torch.nn.init as init
+init.constant(m.bias, 0.0)
+
 # model = AlexNet()
 if args.cuda:
     model.cuda()
